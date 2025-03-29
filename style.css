@@ -1,0 +1,58 @@
+/* textarea {
+     border-style: 0; 
+     padding: 0;
+    width: auto;
+    outline: none; 
+} */
+#addRow, .addCompanyRow {
+    transform: rotateZ(45deg);
+}
+.companyLetterHeadInput{
+    padding: 5px !important;
+    /* text-align: center !important; */
+}
+.text-area {
+    border: none !important;
+    width: 300px;
+    min-height: 20px;
+    max-width: 100%;
+    overflow-y: hidden;
+    resize: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+#sr-no-head {
+    width: 40px !important;
+}
+#description-head {
+    width: 350px !important;
+}
+.quantity-td {
+    max-width: 85px;
+}
+.unit-td {
+    max-width: 70px;
+}
+.rate-td {
+    max-width: 50px;
+}
+.amount-rs-td {
+    max-width: 110px;
+}
+td {
+    padding: 5px !important;
+}
+.form-check, .form-select{
+    display: inline-block !important;
+}
+#reciever-add{
+    max-width: 100%;
+    overflow-y: hidden;
+    resize: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+.tfoot{
+    font-weight: bold !important;
+    text-align: right !important;
+}
