@@ -3,7 +3,7 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-blueviolet)
 
-[Live Demo]([https://nitish-0710.github.io/billing-webapp/])
+[Live Demo](https://nitish-0710.github.io/billing-webapp/)
 
 ![Project Preview](images/preview.png)
 ![Project Preview](images/preview2.png)
