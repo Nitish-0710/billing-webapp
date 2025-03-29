@@ -1,6 +1,8 @@
 # 💰 Billing Software (Vanilla JS)
 
-![Project Preview](images/preview.png)(images/preview2.png)(images/preview3.png)
+![Project Preview](images/preview.png)
+![Project Preview](images/preview2.png)
+![Project Preview](images/preview3.png)
 
 A **responsive billing web app** with GST calculation, custom letterheads, and print functionality—built with pure JavaScript!
 
