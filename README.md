@@ -1,5 +1,10 @@
 # 💰 Billing Software (Vanilla JS)
 
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-blueviolet)
+
+[Live Demo](https://yourusername.github.io/billing-software)
+
 ![Project Preview](images/preview.png)
 ![Project Preview](images/preview2.png)
 ![Project Preview](images/preview3.png)
