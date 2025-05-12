@@ -56,11 +56,13 @@ pr.addEventListener("click", () => {
     Array.from(document.querySelectorAll(".btn")).forEach((button) => {
         button.parentElement.setAttribute("hidden", "true");
     });
+    // document.getElementsByTagName("nav").setAttribute("hidden", "true")
 
     window.print();
     Array.from(document.querySelectorAll(".btn")).forEach((button) => {
         button.parentElement.removeAttribute("hidden");
     });
+    // document.getElementsByTagName("nav").removeAttribute("hidden");
 });
 
 tablebody.addEventListener("input", (e) => {
@@ -77,6 +79,13 @@ tablebody.addEventListener("input", (e) => {
         row.querySelector(".amount-rs").style.height = "20px";
     }
     total();
+    if (document.getElementsByClassName("advance")) {
+        advance();
+    }
+    if (!isNaN(gst.value)) {
+        console.log(gst.value);
+        calculateGST(Number.parseInt(gst.value));
+    }
 });
 
 function saveData() {
@@ -112,6 +121,13 @@ function removeRow() {
         tr.remove();
         srNo();
         total();
+        if (document.getElementsByClassName("advance")) {
+            advance();
+        }
+        
+        if (!isNaN(gst.value)) {
+            calculateGST(Number.parseInt(gst.value));
+        }
     });
     return td_desc;
 }
@@ -139,12 +155,6 @@ r_textarea.addEventListener("input", () => {
     textareaHeight(r_textarea);
 });
 
-/*
- textareaHeight(r_textarea) was being called immediately because it was inside the event listener assignment. The listener should receive a function, not the result of a function call.
-
- By wrapping the function call in an anonymous function or an arrow function, it will execute only when the input event is triggered.
-*/
-
 totalCheckbox.addEventListener("click", () => {
     if (!document.querySelector(".total")) {
         for (let i = 0; i < 3; i++) {
@@ -165,36 +175,56 @@ totalCheckbox.addEventListener("click", () => {
         }
     }
     total();
-    document.querySelector("#add-gst").removeAttribute("disabled")
+    if (document.querySelector(".balance")) {
+        advance();
+    }
+    document.querySelector("#add-gst").removeAttribute("disabled");
 });
 
 advanceCheckbox.addEventListener("click", () => {
     if (!document.querySelector(".advance")) {
-        let advanceAmount_tr = document.createElement("tr");
-        let advanceAmount_desc = addFootRowDesc("advance advance-desc tfoot");
-        let advanceAmount_amt = addFootRowAmount("advance advance-rs tfoot");
+        let advance_tr = document.createElement("tr");
+        advance_tr.setAttribute("class", "advance-tr");
+        let advance_desc = addFootRowDesc("advance advance-desc tfoot");
+        let advance_amt = addFootRowAmount("advance advance-rs tfoot");
 
-        advanceAmount_tr.appendChild(advanceAmount_desc);
-        advanceAmount_tr.appendChild(advanceAmount_amt);
+        advance_tr.appendChild(advance_desc);
+        advance_tr.appendChild(advance_amt);
 
         let remBtn = removeRow();
-        advanceAmount_tr.appendChild(remBtn);
-        tablefoot.appendChild(advanceAmount_tr);
+        advance_tr.appendChild(remBtn);
+        tablefoot.appendChild(advance_tr);
 
         let all_adv_desc = tablefoot.querySelector(".advance-desc");
         all_adv_desc.value = "Advance Amount Rs";
-        // let balance_tr = document.createElement("tr");
-        // let balance_desc = addFootRowDesc("balance-desc tfoot");
-        // let balance_amt = addFootRowAmount("balance-rs tfoot");
-        // remBtn = new removeRow();
+        let balance_tr = document.createElement("tr");
+        balance_tr.setAttribute("class", "balance-tr");
+        let balance_desc = addFootRowDesc("balance balance-desc tfoot");
+        let balance_amt = addFootRowAmount("balance balance-amt tfoot");
 
-        // balance_tr.appendChild(balance_desc);
-        // balance_tr.appendChild(balance_amt);
-        // balance_tr.appendChild(remBtn);
-        // tablefoot.appendChild(balance_tr);
+        balance_tr.appendChild(balance_desc);
+        balance_tr.appendChild(balance_amt);
 
-        // let all_balance_desc = tablefoot.querySelector(".balance-desc");
-        // all_balance_desc.value = "Balance Amount Rs";
+        remBtn = removeRow();
+
+        // Add the event listener here, when creating the row
+        remBtn.querySelector("button").addEventListener("click", () => {
+            // When balance row is removed, recalculate based on total
+            if (!isNaN(gst.value)) {
+                calculateGST(Number.parseInt(gst.value));
+            }
+        });
+
+        balance_tr.appendChild(remBtn);
+        tablefoot.append(balance_tr);
+
+        let all_balance_desc = tablefoot.querySelector(".balance-desc");
+        all_balance_desc.value = "Balance Amount Rs";
+
+        advance_amt.addEventListener("input", () => {
+            advance();
+            calculateGST(Number.parseInt(gst.value));
+        });
     }
 });
 
@@ -205,7 +235,6 @@ function total() {
     Array.from(tablebody.querySelectorAll(".amount-rs")).forEach(
         (amtElement) => {
             let amt = amtElement.value.trim();
-            console.log(amt);
             if (amt === "") {
                 amt = "0"; // Treat empty fields as 0
             }
@@ -218,6 +247,14 @@ function total() {
     allTotal_desc[allTotal_desc.length - 1].value = "Total Amount Rs";
 
     return total_amt;
+}
+
+function advance() {
+    let t = total();
+    let adv = Number.parseFloat(tablefoot.querySelector(".advance-rs").value) || 0;
+    let balance_amt = tablefoot.querySelector(".balance-amt");
+    balance_amt.value = t - adv;
+    return t - adv;
 }
 
 function addFootRowDesc(classname) {
@@ -247,12 +284,14 @@ function addFootRowAmount(classname) {
 
 // let gst = document.querySelector("#add-gst");
 gst.addEventListener("change", () => {
+    generateGSTRows();
     calculateGST(Number.parseInt(gst.value));
 });
 
-function calculateGST(gst_pct) {
+function generateGSTRows() {
     if (!document.querySelector(".gst")) {
         let cgst_tr = document.createElement("tr");
+        cgst_tr.setAttribute("class", "cgst-tr");
         let cgst_desc = addFootRowDesc("gst cgst-desc tfoot");
         let cgst_amt = addFootRowAmount("cgst-amount tfoot");
 
@@ -264,10 +303,11 @@ function calculateGST(gst_pct) {
         tablefoot.appendChild(cgst_tr);
 
         let sgst_tr = document.createElement("tr");
+        sgst_tr.setAttribute("class", "sgst-tr");
         let sgst_desc = addFootRowDesc("gst sgst-desc tfoot");
         let sgst_amt = addFootRowAmount("sgst-amount tfoot");
 
-        remBtn = new removeRow();
+        remBtn = removeRow();
 
         sgst_tr.appendChild(sgst_desc);
         sgst_tr.appendChild(sgst_amt);
@@ -275,60 +315,50 @@ function calculateGST(gst_pct) {
         tablefoot.appendChild(sgst_tr);
 
         let grandTotal_tr = document.createElement("tr");
+        grandTotal_tr.setAttribute("class", "grandTotal-tr");
         let grandTotal_desc = addFootRowDesc("grandTotal-desc tfoot");
         let grandTotal_amt = addFootRowAmount("grandTotal-amount tfoot");
 
-        remBtn = new removeRow();
+        remBtn = removeRow();
 
         grandTotal_tr.appendChild(grandTotal_desc);
         grandTotal_tr.appendChild(grandTotal_amt);
         grandTotal_tr.appendChild(remBtn);
         tablefoot.appendChild(grandTotal_tr);
     }
-    let total_amount = total(); // Get the total amount after recalculating
-    let cgstAmount = (total_amount * (gst_pct / 2)) / 100;
+}
+
+function calculateGST(gst_pct) {
+    let tax_amount = 0;
+    if (document.querySelector(".total")) {
+        tax_amount = total();
+    }
+
+    if (document.querySelector(".balance-amt")) {
+        tax_amount = advance();
+    }
+
+    let cgstAmount = (tax_amount * (gst_pct / 2)) / 100;
     let sgstAmount = cgstAmount;
 
-    // Update CGST fields
-    let cgst_desc = tablefoot.querySelector(".cgst-desc");
-    cgst_desc.value = `${gst_pct / 2}% CGST`;
-    let cgst_amt = tablefoot.querySelector(".cgst-amount");
-    cgst_amt.value = cgstAmount;
+    if (document.querySelector(".gst")) {
+        let cgst_desc = tablefoot.querySelector(".cgst-desc");
+        cgst_desc.value = `${gst_pct / 2}% CGST`;
+        let cgst_amt = tablefoot.querySelector(".cgst-amount");
+        cgst_amt.value = cgstAmount;
 
-    // Update SGST fields
-    let sgst_desc = tablefoot.querySelector(".sgst-desc");
-    sgst_desc.value = `${gst_pct / 2}% SGST`;
-    let sgst_amt = tablefoot.querySelector(".sgst-amount");
-    sgst_amt.value = sgstAmount;
+        let sgst_desc = tablefoot.querySelector(".sgst-desc");
+        sgst_desc.value = `${gst_pct / 2}% SGST`;
+        let sgst_amt = tablefoot.querySelector(".sgst-amount");
+        sgst_amt.value = sgstAmount;
 
-    // Update Grand Total fields
-    let grandTotalAmount = total_amount + cgstAmount + sgstAmount;
-    let grandTotal_desc = tablefoot.querySelector(".grandTotal-desc");
-    grandTotal_desc.value = `Grand Total Amount Rs`;
+        let grandTotalAmount = tax_amount + cgstAmount + sgstAmount;
+        let grandTotal_desc = tablefoot.querySelector(".grandTotal-desc");
+        grandTotal_desc.value = `Grand Total Amount Rs`;
 
-    let grandTotal_amt = tablefoot.querySelector(".grandTotal-amount");
-    grandTotal_amt.value = grandTotalAmount;
-
-    // let total_amount = total();
-    // console.log(total_amount);
-
-    // let all_cgst_desc = tablefoot.querySelector(".cgst-desc");
-    // all_cgst_desc.value = `${gst_pct / 2}% CGST`;
-    // let all_cgst_amount = tablefoot.querySelector(".cgst-amount");
-    // all_cgst_amount.value = (total_amount * (gst_pct / 2)) / 100;
-
-    // let all_sgst_desc = tablefoot.querySelector(".sgst-desc");
-    // all_sgst_desc.value = `${gst_pct / 2}% SGST`;
-    // let all_sgst_amount = tablefoot.querySelector(".sgst-amount");
-    // all_sgst_amount.value = (total_amount * (gst_pct / 2)) / 100;
-
-    // let all_grandtotal_desc = tablefoot.querySelector(".grandTotal-desc");
-    // all_grandtotal_desc.value = `Grand Total Amount`;
-    // let all_grandtotal_amount = tablefoot.querySelector(".grandTotal-amount");
-    // all_grandtotal_amount.value =
-    //     Number.parseInt(total_amount) +
-    //     Number.parseInt(all_cgst_amount.value) +
-    //     Number.parseInt(all_sgst_amount.value);
+        let grandTotal_amt = tablefoot.querySelector(".grandTotal-amount");
+        grandTotal_amt.value = grandTotalAmount;
+    }
 }
 
 let imageRadio = document.querySelector("#image");
@@ -414,5 +444,8 @@ letterHead.addEventListener("change", () => {
                 });
             }
         );
+    }
+    else{
+        companyLetterHead.innerHTML = "";
     }
 });
